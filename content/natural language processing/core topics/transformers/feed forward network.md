@@ -19,10 +19,9 @@ $$
 | b₁, b₂    | Biases                                        |
 
 ### expanding the dimensional space
-$$
-\text{dim}(W_1 x) = d_{\text{ff}} \quad \text{where typically } d_{\text{ff}} \approx 4 \, d_{\text{model}}
+$$\text{dim}(W_1 x) = d_{\text{ff}} \quad \text{where typically } d_{\text{ff}} \approx 4 \, d_{\text{model}}$$
 
-$$​
+​
 widening of dimensions is done:
 - to explore more feature combinations
 - for more expressive non-linear transformations
