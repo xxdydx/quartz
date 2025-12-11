@@ -37,15 +37,15 @@ the tokens are projected into a high-dimensional space to make linearly separabl
 
 ## residual connection and layer normalisation
 
-each of the two sub-layers (mha and ffn) in a transformer block has an identical "wrapper" around it.
+each of the two sub-layers (MHA and FFN) in a transformer block has an identical "wrapper" around it.
 
 ### the sub-layer wrapper
 
-the full operation for _each_ sub-layer (both attention and ffn) follows this pattern:
+the full operation for _each_ sub-layer (both attention and FFN) follows this pattern:
 
 $$\text{SubLayerOutput} = \text{LayerNorm}(x + \text{SubLayer}(x))$$
 
-where `x` is the input to the sub-layer, and `SubLayer` is the function itself (e.g., the ffn). this process happens in two steps:
+where `x` is the input to the sub-layer, and `SubLayer` is the function itself (e.g., the FFN). this process happens in two steps:
 
 ### 1. residual connection (`x + ...`)
 
@@ -60,7 +60,7 @@ where `x` is the input to the sub-layer, and `SubLayer` is the function itself (
 - **how it works:**
     - it computes the mean and variance **across all features ($d_{model}$) for a single token**.
     - it then normalises that token's vector to have a mean of 0 and a variance of 1.
-    - **note:** this is different from batch normalisation, which normalises _across the batch_ for a single feature. layer normalisation is independent of the batch size, which is vital for nlp tasks with varying sequence lengths.
+    - **note:** this is different from batch normalisation, which normalises _across the batch_ for a single feature. layer normalisation is independent of the batch size, which is vital for NLP tasks with varying sequence lengths.
 - **why it's needed:**
     - **stabilises training:** it ensures that the inputs to every layer are always in a consistent, predictable distribution (i.e., not too large or too small). this speeds up and stabilises the training process.
     - **reduces covariate shift:** it reduces the problem where the distribution of one layer's activations changes as the parameters of the previous layers are updated during training.

@@ -12,6 +12,7 @@ the transformer helps how?
 
 
 ## core intuition
+
 the transformer reads all the tokens in the sequence at once
 
 each token dynamically attends to every other token in the sequence and decides:
@@ -20,7 +21,7 @@ each token dynamically attends to every other token in the sequence and decides:
 
 this is done through the **attention mechanism**— a weighted averaging of all other tokens, where the weights depend on the contextual relevance of the token.
 
-more about the attention mechanism here! [[attention mechanism, in depth!]]
+more about the attention mechanism here! [[attention mechanism (basics)]]
 
 ## architectural overview
 ![[Pasted image 20251018205127.png]]
@@ -119,7 +120,7 @@ this allows the decoder to generate text one token a time, while conditioning on
 - **lack of inductive bias**: unlike CNNs (locality) or RNNs (sequence continuity)
 
 ## what has happened since that 2017 paper?
-- **decoder-only transformers**: GPT series, LLaMA, PaLM (for text generation).
+- **[[decoder-only transformers]]**: GPT series, LLaMA, PaLM (for text generation).
 - **encoder-only transformers**: BERT, RoBERTa, DistilBERT (for classification/embedding tasks).
 - **encoder-decoder**: T5, BART, FLAN (for translation, summarisation, instruction-tuning).
 
