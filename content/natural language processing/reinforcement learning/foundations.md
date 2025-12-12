@@ -1,7 +1,25 @@
 
-## how does RL differ from SFT?
+## how does reinforcement learning differ from supervised learning?
+
+### the optimisation objective
+- **SFT (Supervised Fine-Tuning):** Optimises for **Imitation**. It treats the problem as a sequence of independent classification tasks.
+    - **Loss Function:** Minimises Cross-Entropy Loss (Negative Log-Likelihood) against a fixed target sequence $y$.$$L_{CE} = - \sum_{t} \log P_\theta(y_t | y_{<t}, x)$$
+    - **Goal:** Match the likelihood distribution of the training data.
+
+- **RL (Reinforcement Learning):** Optimises for **Value Maximisation**. It treats the generation as a decision-making process where actions (tokens) lead to a final scalar outcome.
+    - **Objective:** Maximises the Expected Return (Reward). $$J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} [R(\tau)]$$
+    - **Goal:** Maximise a utility function (Reward Model), potentially deviating from the training data distribution to find higher-value outputs.
+
+### feedback granularity & signal
+- **SFT (Dense Signal):** Feedback is provided at every token step $t$. The gradient $\nabla \log P(y_t)$ is computed immediately against the ground truth $y_t$. There is no ambiguity about _which_ action was incorrect.
+- **RL (Sparse Signal):** Feedback is typically episodic (received only at the end of sequence $T$). The model receives a single scalar $R$.
+    - **Credit Assignment Problem:** The optimisation algorithm (e.g., PPO) must estimate which specific tokens in the sequence contributed to the high/low reward, usually via Generalised Advantage Estimation (GAE).
 
 
+### distributional putcome: "average" vs "peak"
+
+- **SFT (Distribution Matching):** The model approximates the conditional probability $P_{data}(y|x)$. If the training data contains a mixture of high-quality and mediocre responses, the model learns the **mean** of that distribution.
+- **RL (Mode Seeking):** RL shifts the policy mass $\pi_\theta$ toward regions of the output space that yield high $R$. If the Reward Model accurately ranks "superhuman" responses higher than "average" human responses, the policy can converge to the **peak** of the reward landscape, effectively outperforming the average demonstrator in the dataset.
 
 ## markov decision process
 
