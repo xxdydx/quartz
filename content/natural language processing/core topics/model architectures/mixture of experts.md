@@ -30,13 +30,13 @@ This is a network that determines which tokens are sent to which expert. How to 
 - **Cons:** Hard to implement for auto-regressive decoding (generation) because you don't have the full batch of future tokens.
 ### hash routing
 - **Mechanism:** Instead of learning a router, use a fixed random hash function to assign tokens to experts.
-- **Insight:** Hash Routing outperforms dense models of equivalent inference cost. This proves that **Parameters > Intelligence**. Simply having more "memory slots" (parameters) helps the model, even if the routing logic is dumb. However, learned routing is significantly better.
+- Hash Routing outperforms dense models of equivalent inference cost (proven by research!). This proves that **Parameters > Intelligence**. Simply having more "memory slots" (parameters) helps the model, even if the routing logic is dumb. However, learned routing is significantly better.
 
 ## the math (token choice routing)
 
 The Gating Network (Router) produces a probability distribution over all $N$ experts. If we computed all of them, the model would be too slow. We need a specific algorithm to select only a few.
 
-The industry standard is **Top-K Gating**.
+Typically, **top-K** experts are used for the final output.
 
 ### softmax top-k algorithm
 **Used in:** Switch Transformer, Mixtral 8x7B.
@@ -73,9 +73,7 @@ A better solution to this can be found in [[deepseek v3#^c58f83|DeepSeek V3's ro
 [[deepseek v3|DeepSeek v3]]
 
 ## when to use MoE?
-
-If you are designing a system, use MoE if:
-1. **Inference Constraints:** You need the intelligence of a 100B+ model but can only afford the latency/cost of a 10B model.
-2. **Massive Scale:** You have enough data (trillions of tokens) to train the experts. MoE overfits easily on small datasets.
-3. **Multi-Tasking:** You are training on code, math, and literature simultaneously. MoE separates these domains better than Dense models
+1. **Inference Constraints:** for faster inference
+2. **Massive Scale:** MoE overfits easily on smaller datasets
+3. **Multi-Tasking:** training different domains of knowledge, not just one area of expertise
 
