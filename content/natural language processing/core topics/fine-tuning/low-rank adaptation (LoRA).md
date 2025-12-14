@@ -163,11 +163,17 @@ $$Y = W_0 X + \text{SGMV}(X, \mathcal{A}, \mathcal{I})$$
 ## interview questions
 
 #### Why does LoRA work with a low rank of 1 or 2?
-- A pre-trained model ($W_0$) has billions of parameters ($d$). However, optimisation for a specific task (like "Code Generation") doesn't happen randomly in that space. It happens along a very low-dimensional manifold.
-- - **Hypothesis:** $\theta_{task} = \theta_{pretrain} + P \cdot z$
+
+Research (specifically [Aghajanyan et al., 2020](https://arxiv.org/abs/2012.13255)) showed a fascinating property of Neural Networks:
+> **"As models get larger, the 'intrinsic dimension' of learning a new task gets smaller."**
+
+A pre-trained model ($W_0$) has billions of parameters ($d$). However, optimisation for a specific task (like "Code Generation") doesn't happen randomly in that space. It happens along a very low-dimensional manifold.
+
+**Hypothesis:** $\theta_{task} = \theta_{pretrain} + P \cdot z$
     - $P$: A random projection matrix to a tiny subspace.
     - $z$: A tiny vector (e.g., dimension 100).
-- **LoRA Connection:** LoRA creates this subspace explicitly using matrices $A$ and $B$. If the task is simple (e.g., sentiment analysis), the intrinsic dimension is extremely low ($r=1$ or $2$).
+
+**LoRA Connection:** LoRA creates this subspace explicitly using matrices $A$ and $B$. If the task is simple (e.g., sentiment analysis), the intrinsic dimension is extremely low ($r=1$ or $2$).
 
 
 #### Which modules should I target? Just Q and V?
@@ -191,6 +197,71 @@ $$Y = W_0 X + \text{SGMV}(X, \mathcal{A}, \mathcal{I})$$
 **2. Latency (The Dealbreaker)**
 - **Adapters:** Because they are inserted sequentially, they increase the depth of the network. Even small adapters introduce **Inference Latency** because the GPU has to wait for the adapter layer to finish before moving to the next block. They cannot be merged easily due to the non-linearity (ReLU) inside them.
 - **LoRA:** Because $W_{new} = W_0 + BA$ is a linear operation, we can **merge** weights during inference. The model architecture remains identical to the base model. **Zero Inference Latency.**
+
+
+## technical implementation of LoRA
+
+### [[loss functions]]
+
+### hyperparameters
+
+| **Hyperparameter**   | **Typical Value** | **Technical Explanation**                                                                                                                                                                                                                        |
+| -------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Rank ($r$)**       | 8, 16, 64         | The inner dimension of matrices $A$ and $B$.<br>• **Low ($r=8$):** Good for simple style transfer.<br>• **High ($r=64+$):** Required for learning "New Knowledge" (e.g., a new programming language).                                            |
+| **Alpha ($\alpha$)** | $2 \times r$      | The scaling factor. The update is scaled by $\frac{\alpha}{r}$.<br>• **Heuristic:** Set $\alpha = 2r$. This amplifies the LoRA signal.<br>• **Why?** It acts like a specific learning rate for the adapter. High $\alpha$ = Stronger adaptation. |
+| **Dropout**          | 0.05 (5%)         | Randomly zeros out 5% of neurons in the adapter during training. Prevents the adapter from overfitting to specific keywords in the training data.                                                                                                |
+| **Target Modules**   | `all-linear`      | Which layers get wrappers?<br>• **Old Way:** Just `q_proj`, `v_proj` (Attention).<br>• **New Way:** All linear layers (MLPs + Attention). This yields better results because MLPs store "Knowledge."                                             |
+### skeleton code (PyTorch)
+
+```python
+import torch
+import torch.nn as nn
+import math
+
+class LoRALinear(nn.Module):
+    def __init__(self, in_features, out_features, rank=16, alpha=32, dropout=0.05):
+        super().__init__()
+        
+        # 1. The Frozen Pre-trained Weight (Simulated here)
+        # In a real library, this references the existing model's weight
+        self.pretrained_weight = nn.Parameter(torch.randn(out_features, in_features), requires_grad=False)
+        
+        # 2. The LoRA Matrices (Trainable)
+        # A: Gaussian Initialization (The "Down" projection)
+        self.lora_A = nn.Parameter(torch.zeros(rank, in_features))
+        nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
+        
+        # B: Zero Initialization (The "Up" projection)
+        # CRITICAL: We init B to zero so the training starts with NO change to the model.
+        self.lora_B = nn.Parameter(torch.zeros(out_features, rank))
+        
+        # 3. Scaling Factor
+        self.scaling = alpha / rank
+        
+        # 4. Dropout
+        self.dropout = nn.Dropout(p=dropout)
+
+    def forward(self, x):
+        # x shape: [Batch, Seq_Len, In_Features]
+        
+        # Path 1: The "Frozen" Highway
+        # Standard matrix multiplication: x @ W.T
+        result_frozen = torch.nn.functional.linear(x, self.pretrained_weight)
+        
+        # Path 2: The "LoRA" Detour
+        # Apply dropout first
+        x_dropped = self.dropout(x)
+        
+        # x @ A.T -> [Batch, Seq_Len, Rank]
+        # result @ B.T -> [Batch, Seq_Len, Out_Features]
+        result_adapter = (x_dropped @ self.lora_A.T) @ self.lora_B.T
+        
+        # Scaling
+        result_adapter = result_adapter * self.scaling
+        
+        # Merge
+        return result_frozen + result_adapter
+```
 
 
 ## references

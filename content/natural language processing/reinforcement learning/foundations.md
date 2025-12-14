@@ -146,7 +146,12 @@ If $A(s,a)>0$, the action $a$ outperformed the baseline. **We should increase $Ï
 ## references
 
 [An introduction to Reinforcement Learning](https://www.youtube.com/watch?v=JgvyzIkgxF0)
+
 [Proximal Policy Optimization (PPO) for LLMs Explained Intuitively](https://www.youtube.com/watch?v=8jtAzxUwDj0)
+
 [Reinforcement Learning with Human Feedback (RLHF) in 4 minutes](https://www.youtube.com/watch?v=vJ4SsfmeQlk)
+
 [The Contextual Bandits Problem](https://www.youtube.com/watch?v=N5x48g2sp8M)
+
 [How does DeepSeek learn? GRPO explained with Triangle Creatures](https://www.youtube.com/watch?v=wXEvvg4YJ9I)
+

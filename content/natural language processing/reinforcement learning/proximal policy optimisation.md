@@ -226,7 +226,7 @@ Initialise the neural network weights using Orthogonal matrices with specific ga
 - **Why?** It preserves the magnitude of the gradient during deep backpropagation.
 - **Industry Note:** In LLMs (RLHF), training is usually started with **Pre-trained Weights** for the Actor, so we don't re-initialise. However, Orthogonal Initialisation is used for the **Critic Head**, which is initialised from scratch.
 
-## 8. advanced safeguards
+## 8. advanced  safeguards
 
 ### a. early stopping (KL safeguard)
 
