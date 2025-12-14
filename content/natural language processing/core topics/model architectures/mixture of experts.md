@@ -11,9 +11,11 @@ MoE allows for scaling of model parameters massively without increasing the comp
 In a standard transformer (dense model), every input token passes through every single neuron in the Feed-Forward Network (FFN) layers. In a MoE transformer, the dense FFN layers are replaced by a **Sparse MoE layer**.
 
 **The Experts**
+
 Instead of one giant FFN, there are $N$ smaller FFNs. These are called **Experts**. These FFN layers do not share weights and they specialise in different patterns (e.g. one expert might be better at maths, another might be better at coding, etc.)
 
 **The Router**
+
 This is a network that determines which tokens are sent to which expert. How to route a token to an expert is one of the big decisions when working with MoEs - the router - is typically a learnable linear projection followed by a non-linearity (Softmax or Sigmoid) to produce probabilities/scores.
 
 ## how to choose experts
@@ -52,11 +54,13 @@ $$H(x) = x \cdot W_g$$
 ### mode collapse (inequality)
 
 **The Problem**
+
 1. **Initialization:** Weights are random. Expert #1 gets slightly better random weights for common words.
 2. **The Loop:** The router notices Expert #1 has lower loss. It sends _more_ tokens to Expert #1. Expert #1 gets _more_ gradient updates. It becomes even smarter. The router sends _even more_ tokens.
 3. **The Collapse:** Eventually, Expert #1 processes 100% of tokens. Experts #2–64 process 0%. The trained model essentially becomes a Dense model with a lot of wasted memory.
 
 **The Solution**
+
 We add a penalty to the loss function to punish the router for choosing the same expert too often.$$L_{total} = L_{CrossEntropy} + \alpha \cdot N \sum_{i=1}^N f_i \cdot P_i$$
 - $f_i$: The fraction of tokens _actually_ sent to Expert $i$.
 - $P_i$: The probability fraction the router _assigned_ to Expert $i$.
