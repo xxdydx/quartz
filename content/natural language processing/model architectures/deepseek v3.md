@@ -115,6 +115,29 @@ The Fix: DeepSeek splits the Key/Query vectors into two parts: "Content" and "Ro
 - The tiny $k_{rope}$ is cached separately.
 - So we get memory savings of compression + positional accuracy of high-dimension RoPE.
 
+## sparse attention
+
+With the release of **V3.2-Exp**, DeepSeek introduced **Native Sparse Attention (NSA)**. While MLA reduces the _size_ of each token's cache, Sparse Attention reduces the _number_ of tokens the model actually looks at.
+
+Instead of attending to every single previous token (Quadratic cost $O(n^2)$), the model views the history through three distinct lenses:
+1. **Sliding Window (Local):** The model always looks at the most recent tokens (e.g., the last 512). This preserves immediate context and grammar.
+2. **Compressed Lens (Global):** For older tokens, the model doesn't look at them individually. Instead, it looks at **summarised blocks**. This gives the model a "big picture" view of the document without the compute cost.
+3. **Selected Lens (Fine-Grained):** A "Lightning Indexer" identifies a few high-importance tokens from the past that are semantically critical (like a specific variable name or a date) and attends to them with full precision.
+
+
+v3.2 uses a two stage system:
+
+<u>Lightning Indexer</u>
+A tiny FP8 network that:
+- Compresses queries/keys into low-dim space (64 vs 1024)
+- Scans all 128K tokens (context window) in milliseconds
+- Scores: "Is this token actually worth attending to in this step?"
+
+<u>Token Selector</u>
+- Picks the top 2048 most relevant tokens
+- Runs full-precision attention only on those top-K tokens
+- Attention becomes dynamic & content-aware
+
 ## multi-token prediction (mtp)
 
 ### how it works

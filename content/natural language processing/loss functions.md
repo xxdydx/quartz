@@ -4,7 +4,7 @@ Most loss functions are derived from Maximum Likelihood Estimation (MLE). We try
 
 **Goal:** Decide which "bucket" an input belongs to.
 
-### A. Binary Cross-Entropy (BCE)
+### Binary Cross-Entropy (BCE)
 
 **Used for**: Binary Classification problems
 
@@ -25,7 +25,7 @@ Most loss functions are derived from Maximum Likelihood Estimation (MLE). We try
 - **Scenario:** Image Tagging (An image can contain "Cat", "Grass", AND "Sky").
     - **Rationale:** BCE treats each class as an **independent coin flip**. The presence of "Cat" does not reduce the probability of "Grass". (You run BCE separately for each of the $N$ tags).
 
-### B. Categorical Cross-Entropy (CCE)
+### Categorical Cross-Entropy (CCE)
 
 **Used for**: "Pick 1 of N" tasks (Multi-class).
 **Input Format**: A vector of probabilities summing to 1 (from a Softmax activation).
@@ -44,7 +44,7 @@ $$L = - \sum_{c=1}^C y_{true, c} \cdot \log(y_{pred, c})$$
 - **Scenario:** Next Token Prediction (LLMs).
     - **Rationale:** There is only one actual "next word" in the training text. We want to maximize the probability of that specific token.
 
-### C. Focal Loss
+### Focal Loss
 
 **Used for**: Extreme Class Imbalance.
 
