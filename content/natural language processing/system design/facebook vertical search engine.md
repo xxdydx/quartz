@@ -46,8 +46,6 @@ The task is formulated as a recall optimisation problem. The objective is to max
 #### positive labels
 - Team had 2 options, clicks vs impressions, both achieved similar recall, so they decided to go with using clicks. 
 - By clicks I mean results the user actually clicked.
-
-
 ### eval metrics
 - Online metrics (e.g. A/B tests) and offline metrics (e.g. recall@K) used. 
 - They sampled 10,000 search sessions and run a K-Nearest Neighbour (KNN) search across the _entire_ index to measure how often the target result appears in the top K results.
@@ -71,8 +69,6 @@ Moving from text embeddings to **unified embeddings** yielded significant recall
 - The model relies primarily on these character chunks rather than full words.
 	- There are fewer unique 3-letter combinations than there are unique words in the English language. This keeps the "vocabulary" small, making the model faster to train.
 	- It solves the "Out-of-Vocabulary" problem. On Facebook, people have unique names or use slang that isn't in a standard dictionary. Character N-grams can represent _any_ word, even one the model has never seen before, by breaking it into familiar chunks.
-
-
 #### Word N-grams
 - _Example:_ In the query "hot dog stand," the word N-grams capture that "hot" and "dog" belong together ("hot dog"), rather than just being a temperature and an animal.
 - Adding this on top of character chunks improved recall by **+1.5%**. It helps the model understand specific phrases better than characters alone.

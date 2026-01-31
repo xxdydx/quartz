@@ -1,4 +1,3 @@
-
 ## how does reinforcement learning differ from supervised learning?
 
 ### the optimisation objective
