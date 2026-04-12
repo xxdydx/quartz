@@ -1,6 +1,7 @@
-Lessons from how leading social media companies design and train models for semantic search.
+Lessons from how leading tech companies design and train models for semantic search.
 
 ## accuracy vs. latency
+
 In modern search systems, there's an inherent trade-off.
 - Accuracy: Larger models (more parameters, deeper layers) capture complex semantic nuances.
 - Latency: We must score thousands of documents in milliseconds. Large models are too slow for real-time inference.
