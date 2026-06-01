@@ -86,14 +86,102 @@ Key Problems:
 ## using STL
 
 ### python
-We can use the `bisect` module. Works on any sorted list.
 
-| **Use Case**              | **Function**                 | **Logic / Comparison**                          |
-| ------------------------- | ---------------------------- | ----------------------------------------------- |
-| **First element $\ge X$** | `bisect_left(arr, X)`        | Finds the first index $i$ where $arr[i] \ge X$. |
-| **First element $> X$**   | `bisect_right(arr, X)`       | Finds the first index $i$ where $arr[i] > X$.   |
-| **Last element $\le X$**  | `bisect_right(arr, X) - 1`   | Finds the boundary where values are $\le X$.    |
+Core idea: bisect finds **insertion points**, not elements
 
+```python
+arr = [1, 3, 3, 5, 7]
+#      0  1  2  3  4
+```
+
+```python
+bisect_left(arr, 3)   # → 1  (insert before existing 3s)
+bisect_right(arr, 3)  # → 3  (insert after existing 3s)
+```
+
+Think of it as: **where would X slot in to keep the array sorted?**
+
+**Examples**
+
+```python
+arr = [1, 3, 3, 5, 7]
+```
+
+First element ≥ X → `bisect_left(arr, X)`
+
+```python
+bisect_left(arr, 3)  # → 1,  arr[1] = 3  ✓ (first 3)
+bisect_left(arr, 4)  # → 3,  arr[3] = 5  ✓ (5 is first ≥ 4)
+```
+
+First element > X → `bisect_right(arr, X)`
+
+```python
+bisect_right(arr, 3)  # → 3,  arr[3] = 5  ✓ (first thing > 3)
+bisect_right(arr, 4)  # → 3,  arr[3] = 5  ✓ (same, since no 4 exists)
+```
+
+ Last element ≤ X → `bisect_right(arr, X) - 1`
+
+```python
+bisect_right(arr, 3) - 1  # → 2,  arr[2] = 3  ✓ (last 3)
+bisect_right(arr, 4) - 1  # → 2,  arr[2] = 3  ✓ (3 is last thing ≤ 4)
+```
+
+Last element < X → `bisect_left(arr, X) - 1`
+
+```python
+bisect_left(arr, 3) - 1  # → 0,  arr[0] = 1  ✓ (last thing strictly < 3)
+bisect_left(arr, 4) - 1  # → 2,  arr[2] = 3  ✓ (3 is last thing < 4)
+```
+
+| **Use Case**          | **Function**               | **Logic**                 |
+| --------------------- | -------------------------- | ------------------------- |
+| First element **≥ X** | `bisect_left(arr, X)`      | Insert point before dupes |
+| First element **> X** | `bisect_right(arr, X)`     | Insert point after dupes  |
+| Last element **≤ X**  | `bisect_right(arr, X) - 1` | One before right boundary |
+| Last element **< X**  | `bisect_left(arr, X) - 1`  | One before left boundary  |
+
+key parameter, allows for transformation of array.
+```python
+arr = [6, 7, 9, 1, 2, 5]
+
+bisect_left(arr, True, key=lambda n: n <= 5)
+```
+
+this becomes, `[False, False, False, True, True, True]`
+
+### `key` parameter — bisect on transformed values
+
+When the array isn't sorted by raw value but **sorted by some property**, use `key`.
+
+```python
+# Rotated sorted array — find the minimum
+nums = [6, 7, 9, 1, 2, 5]  # nums[-1] = 5
+```
+
+```python
+# key transforms each element → False/True
+# [False, False, False, True, True, True]  ← this is sorted!
+
+bisect_left(nums, True, key=lambda n: n <= nums[-1])
+# → 3,  nums[3] = 1  ✓  (first element that drops into lower half)
+```
+
+`bisect_left(arr, True, key=...)` = **first index where key flips to True** — same idea as before, just on the transformed array.
+
+---
+
+### `lo` and `hi` — restrict the search range
+
+```python
+arr = [1, 3, 3, 5, 7]
+
+bisect_left(arr, 3, lo=2)      # → 2  (search starts at index 2, skips index 1)
+bisect_left(arr, 3, lo=0, hi=1) # → 0  (only searches arr[0:1] = [1], inserts at 0)
+```
+
+Useful when you **know the answer lives in a subrange** — avoids searching the whole array.
 ### c++
 C++ returns **iterators**. You must use `std::distance` to get the integer index.
 

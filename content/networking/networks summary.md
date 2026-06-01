@@ -14,10 +14,7 @@ the **OSI model** breaks the complexity of networking into **7 layers**, each wi
 | 3     | Network      | Routing across networks         | IP addresses         |
 | 2     | Data Link    | Delivery on one network segment | Ethernet, MAC        |
 | 1     | Physical     | Raw bits on a wire              | Cables, WiFi signals |
-in practice, 
-"layer 3" = ip routing,
-"layer 4" = tcp/udp,
-"layer 7" = application (http)
+
 
 ## TCP/IP stack
 
@@ -63,7 +60,7 @@ In any subnet, 2 addresses are always reserved and can't be assigned to devices.
 - **Network address** — all host bits set to 0. Identifies the subnet itself. E.g. 192.168.1.**0**
 - **Broadcast address** — all host bits set to 1. Sends to every device on the subnet. E.g. 192.168.1.**255**
 
-**public vs private addresses**
+### Public vs Private addresses
 
 private addresses are reserved for use inside networks. routers on the internet will never forward them:
 
@@ -80,12 +77,12 @@ other special ranges:
 - **127.0.0.1** — loopback / localhost. always refers to your own machine, never leaves your device
 - **169.254.x.x** — auto-assigned when DHCP fails. seeing this usually means something's wrong
 
-**how addresses get assigned**
+### Address Assignment
 
 - DHCP (dynamic) — router hands out IPs automatically from a pool when devices connect
 - static — manually configured. used for servers and network gear that need a permanent address
 
-### Default Gateway
+## Default Gateway
 
 the gateway is the device that connects your local network to another network (usually the internet). it's the exit point for any traffic not destined for your local network.
 
